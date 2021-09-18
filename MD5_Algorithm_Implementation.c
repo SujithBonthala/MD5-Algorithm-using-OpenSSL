@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     scanf("%[^\n]s",message_str);
     int m=n;
     md5Algo(message_str,n,&m);
-    printf(NULL);
-    printf("%s\n",message_str);
+    //printf(NULL);
+    //printf("%s\n",message_str);
     return 0;
 }
