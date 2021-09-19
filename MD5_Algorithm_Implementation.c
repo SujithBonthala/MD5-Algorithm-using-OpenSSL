@@ -87,10 +87,20 @@ void step2(unsigned char *msg, int len_org, int *len)
     msg[*len]=(char)b;
     (*len)++;
 }
+
+void step3()
+{
+    //initialise word buffers
+    int a0 = 0x67452301;//A
+    int b0 = 0xefcdab89;//B
+    int c0 = 0x98badcfe;//C
+    int d0 = 0x10325476;//D
+}
 void md5Algo(unsigned char *msg, int len_org, int *len)
 {
     step1(msg,len);
     step2(msg,len_org,len);
+    step3();
 }
 int main(int argc, char *argv[])
 {
