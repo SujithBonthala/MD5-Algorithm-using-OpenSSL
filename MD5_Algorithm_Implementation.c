@@ -88,19 +88,142 @@ void step2(unsigned char *msg, int len_org, int *len)
     (*len)++;
 }
 
-void step3()
+int *step3(int *buffer)
 {
     //initialise word buffers
-    int a0 = 0x67452301;//A
-    int b0 = 0xefcdab89;//B
-    int c0 = 0x98badcfe;//C
-    int d0 = 0x10325476;//D
+    buffer[0] = 0x67452301;//A
+    buffer[1] = 0xefcdab89;//B
+    buffer[2] = 0x98badcfe;//C
+    buffer[3] = 0x10325476;//D
+    return buffer;
+
 }
+
+int *step4(int *s)
+{
+    for(int i=0;i<64;i++)
+    {
+        if(i<16)
+        {
+            if(i%4 == 0)
+            {
+                s[i] = 7;
+            } 
+            else if(i%4 == 1)
+            {
+                s[i] = 12;
+            }
+            else if(i%4 == 2)
+            {
+                s[i] = 17;
+            }
+            else if(i%4 == 3)
+            {
+                s[i] = 22;
+            }
+        }
+        if(16<=i<32)
+        {
+            if(i%4 == 0)
+            {
+                s[i] = 5;
+            } 
+            else if(i%4 == 1)
+            {
+                s[i] = 9;
+            }
+            else if(i%4 == 2)
+            {
+                s[i] = 14;
+            }
+            else if(i%4 == 3)
+            {
+                s[i] = 20;
+            }
+        }
+        if(32<=i<48)
+        {
+            if(i%4 == 0)
+            {
+                s[i] = 4;
+            } 
+            else if(i%4 == 1)
+            {
+                s[i] = 11;
+            }
+            else if(i%4 == 2)
+            {
+                s[i] = 16;
+            }
+            else if(i%4 == 3)
+            {
+                s[i] = 23;
+            }
+        }
+        if(48<=i)
+        {
+            if(i%4 == 0)
+            {
+                s[i] = 6;
+            } 
+            else if(i%4 == 1)
+            {
+                s[i] = 10;
+            }
+            else if(i%4 == 2)
+            {
+                s[i] = 15;
+            }
+            else if(i%4 == 3)
+            {
+                s[i] = 21;
+            }
+        }
+    }
+    return s;
+}
+
+int leftrotate(int x,int c)
+{
+    return (x << c)|(x >> (32-c));
+}
+
 void md5Algo(unsigned char *msg, int len_org, int *len)
 {
     step1(msg,len);
     step2(msg,len_org,len);
-    step3();
+    //
+        for(int i = 0;i<64;i++)
+        {
+            if(0 <= i <= 15)
+            { 
+                F = (buffer[1]&buffer[2])|((~buffer[1])&buffer[3]);
+                g = i;
+            }
+            else if(16 <= i <= 31)
+            {
+                F = (buffer[3]&buffer[1])|((~buffer[3])&buffer[2]);
+                g = (5*i + 1)%16;
+            }
+            else if(32 <= i <= 47)
+            {
+                F = buffer[1]^buffer[2]^buffer[3];
+                g = (3*i + 5)%16;
+            }
+            else if(48 <= i <= 63)
+                F = buffer[2]^(buffer[1]|(~buffer[3]));
+                g = (7*i)%16;
+            int dTemp = buffer[3];
+            buffer[3] = buffer[2];
+            buffer[2] = buffer[1];
+            buffer[1] = buffer[1] + leftrotate((buffer[0] + F + K[i] + M[g]), s[i]);
+            buffer[0] = dTemp;
+        } 
+        hash[0] = hash[0] + buffer[0];
+        hash[1] = hash[1] + buffer[1];
+        hash[2] = hash[2] + buffer[2];
+        hash[3] = hash[3] + buffer[3];
+    }
 }
 int main(int argc, char *argv[])
 {
