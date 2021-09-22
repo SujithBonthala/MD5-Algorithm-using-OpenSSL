@@ -207,8 +207,8 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
     for(int j = 64*l;j<64*k;l++)
     {
         char *temp = &msg[64*j];
-        int M[16];
-        M =  (int *)temp;
+        int *M;
+        M =  (int*)temp;
         for(int i = 0;i<64;i++)
         {
             if(0 <= i <= 15)
@@ -234,6 +234,7 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
             buffer[2] = buffer[1];
             buffer[1] = buffer[1] + leftrotate((buffer[0] + F + K[i] + M[g]), s[i]);
             buffer[0] = dTemp;
+            M++;
         } 
         hash[0] = hash[0] + buffer[0];
         hash[1] = hash[1] + buffer[1];
