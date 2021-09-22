@@ -192,7 +192,7 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
 {
     step1(msg,len);
     step2(msg,len_org,len);
-    int k = (strlen(msg)+1)/64;
+    int k = (strlen(msg)+1)/64;//+1 is because strlen leaves \n
     int l = 0;
     int F,g,K[64];
     int hash[4] = {0,0,0,0};
@@ -206,9 +206,7 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
     }   
     for(int j = 64*l;j<64*k;l++)
     {
-        char *temp = &msg[64*j];
-        int *M;
-        M =  (int*)temp;
+        int *M = (int *)&msg[64*j];
         for(int i = 0;i<64;i++)
         {
             if(0 <= i <= 15)
@@ -227,21 +225,22 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
                 g = (3*i + 5)%16;
             }
             else if(48 <= i <= 63)
+            {
                 F = buffer[2]^(buffer[1]|(~buffer[3]));
                 g = (7*i)%16;
+            }
             int dTemp = buffer[3];
             buffer[3] = buffer[2];
             buffer[2] = buffer[1];
             buffer[1] = buffer[1] + leftrotate((buffer[0] + F + K[i] + M[g]), s[i]);
             buffer[0] = dTemp;
-            M++;
         } 
         hash[0] = hash[0] + buffer[0];
         hash[1] = hash[1] + buffer[1];
         hash[2] = hash[2] + buffer[2];
         hash[3] = hash[3] + buffer[3];
     }
-    char hash_value[16] = (char)hash[0]+(char)hash[1]+(char)hash[2]+(char)hash[3];
+    printf("%s",hash);
 }
 int main(int argc, char *argv[])
 {
