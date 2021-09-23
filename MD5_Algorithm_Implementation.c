@@ -88,18 +88,16 @@ void step2(unsigned char *msg, int len_org, int *len)
     (*len)++;
 }
 
-int *step3(int *buffer)
+void step3(int *buffer)
 {
     //initialise word buffers
     buffer[0] = 0x67452301;//A
     buffer[1] = 0xefcdab89;//B
     buffer[2] = 0x98badcfe;//C
     buffer[3] = 0x10325476;//D
-    return buffer;
-
 }
 
-int *step4(int *s)
+void step4(int *s)
 {
     for(int i=0;i<64;i++)
     {
@@ -180,7 +178,6 @@ int *step4(int *s)
             }
         }
     }
-    return s;
 }
 
 int leftrotate(int x,int c)
@@ -192,8 +189,7 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
 {
     step1(msg,len);
     step2(msg,len_org,len);
-    int k = (strlen(msg)+1)/64;//+1 is because strlen leaves \n
-    int l = 0;
+    int k = (*len+1)/64;
     int F,g,K[64];
     int hash[4] = {0,0,0,0};
     int buffer[4];
@@ -204,9 +200,14 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
     {
         K[i] = sin(i+1)*pow(2,32);
     }   
-    for(int j = 64*l;j<64*k;l++)
+    for(int j=0;j<64*k;j+=64)
     {
-        int *M = (int *)&msg[64*j];
+        char *temp = &msg[j];
+        int M[16];
+        for(int i=0;i<16;i++)
+        {
+            M[i] =  (int)temp[i];
+        }
         for(int i = 0;i<64;i++)
         {
             if(0 <= i <= 15)
@@ -225,10 +226,8 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
                 g = (3*i + 5)%16;
             }
             else if(48 <= i <= 63)
-            {
                 F = buffer[2]^(buffer[1]|(~buffer[3]));
                 g = (7*i)%16;
-            }
             int dTemp = buffer[3];
             buffer[3] = buffer[2];
             buffer[2] = buffer[1];
@@ -240,7 +239,22 @@ void md5Algo(unsigned char *msg, int len_org, int *len)
         hash[2] = hash[2] + buffer[2];
         hash[3] = hash[3] + buffer[3];
     }
-    printf("%s",hash);
+    char hash1[16],hash2[16],hash3[16],hash4[16];
+    itoa(hash[0],hash1,16);
+    itoa(hash[1],hash2,16);
+    itoa(hash[2],hash3,16);
+    itoa(hash[3],hash4,16);
+    char hash_value[32];
+    for(int i=0;i<8;i++)
+    {
+        hash_value[i]=hash1[i];
+        hash_value[i+8]=hash2[i];
+        hash_value[i+16]=hash3[i];
+        hash_value[i+24]=hash4[i];
+    }
+    printf("Hash Value : %s\n",hash_value);
+    //strcat(hash1,strcat(hash2,strcat(hash3,hash4)));
+    //printf("Hash Value : %s\n",hash1);
 }
 int main(int argc, char *argv[])
 {
