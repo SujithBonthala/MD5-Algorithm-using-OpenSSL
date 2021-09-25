@@ -3,11 +3,11 @@
 #include<stdlib.h>
 #include<string.h>
 #include<math.h>
-void step1_2(unsigned char *msg_str, char *msg, long long int len)
+void step1_2(char *msg_str, char *msg, int len)
 {
     //Append Padding Bits
     int j=0;
-    for(int i=0;i<strlen(msg_str);i++)
+    for(int i=0;i<len;i++)
     {
         char ch = msg_str[i];
         int b = (int)ch;
@@ -27,9 +27,9 @@ void step1_2(unsigned char *msg_str, char *msg, long long int len)
     {
         msg[j++]='0';
     }
+    //Append Length
     char a[64];
     int i;
-    len=len%(long long int)(pow(2,64));
     for(i=0;len>0;i++)
     {
         a[i]=(char)(len%2 + 48);
@@ -177,16 +177,18 @@ void md5Algo(char *msg, int len)
             else if(16 <= i <= 31)
             {
                 F = (buffer[3]&buffer[1])|((~buffer[3])&buffer[2]);
-                g = (5*i + 1)%16;
+                g = (5*i+1)%16;
             }
             else if(32 <= i <= 47)
             {
                 F = buffer[1]^buffer[2]^buffer[3];
-                g = (3*i + 5)%16;
+                g = (3*i+5)%16;
             }
             else if(48 <= i <= 63)
+            {
                 F = buffer[2]^(buffer[1]|(~buffer[3]));
                 g = (7*i)%16;
+            }
             unsigned int dTemp = buffer[3];
             buffer[3] = buffer[2];
             buffer[2] = buffer[1];
@@ -198,12 +200,12 @@ void md5Algo(char *msg, int len)
         hash[2] = hash[2] + buffer[2];
         hash[3] = hash[3] + buffer[3];
     }
-    //printf("%d %d %d %d\n",hash[0],hash[1],hash[2],hash[3]);
     char hash1[12],hash2[12],hash3[12],hash4[12];
     itoa(hash[0],hash1,16);
     itoa(hash[1],hash2,16);
     itoa(hash[2],hash3,16);
     itoa(hash[3],hash4,16);
+    //printf("%s %s %s %s\n",hash1,hash2,hash3,hash4);
     char hash_value[33];
     for(int i=0;i<8;i++)
     {
@@ -213,22 +215,27 @@ void md5Algo(char *msg, int len)
         hash_value[i+24]=hash4[i];
     }
     hash_value[32]='\0';
-    printf("Hash Value : %s\n",hash_value);
+    printf("Hash Value : ");
+    for(int i=0;i<32;i++)
+    {
+        printf("%c",hash_value[i]);
+    }
+    printf("\n");
 }
 int main(int argc, char *argv[])
 {
-    unsigned char *message_str;
-    printf("MD5 Algorithm Implementation\n");
+    char *message_str;
+    printf("\nMD5 Algorithm Implementation\n");
     int n;
     printf("\nEnter the length of the message string : ");
     scanf("%d",&n);
     fflush(stdin);
-    message_str=malloc(n*sizeof(unsigned char)+1);
+    message_str=malloc(n*sizeof(char));
     printf("Enter the message string : ");
     scanf("%[^\n]s",message_str);
     fflush(stdin);
     char *message;
-    int m = strlen(message_str);
+    int m = n;
     n = strlen(message_str)*8+513;
     message = malloc(n*sizeof(char));
     step1_2(message_str,message,m);
