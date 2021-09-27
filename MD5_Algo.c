@@ -29,6 +29,12 @@ void step1_2(char *msg_str, char *msg, int len)
     }
     //Append Length
     char a[64];
+    // unsigned int i = 0;
+    // for(int k=0;k<strlen(msg);k++)
+    // {
+    //     i++;
+    // }
+    // itoa(strlen,a,2);
     int i;
     for(i=0;len>0;i++)
     {
@@ -46,7 +52,7 @@ void step1_2(char *msg_str, char *msg, int len)
     msg[j]='\0';
 }
 
-void step3(int *buffer)
+void step3(unsigned int *buffer)
 {
     //initialise word buffers
     buffer[0] = 0x67452301;//A
@@ -55,7 +61,7 @@ void step3(int *buffer)
     buffer[3] = 0x10325476;//D
 }
 
-void step4(int *s)
+void step4(unsigned int *s)
 {
     for(int i=0;i<64;i++)
     {
@@ -138,23 +144,36 @@ void step4(int *s)
     }
 }
 
-int leftrotate(unsigned int x, unsigned int c)
+int leftrotate(int x, int c)
 {
     return (x << c)|(x >> (32-c));
 }
 
+int power_fn(int x, int n)
+{
+    if(n==0)
+    {
+        return 1;
+    }
+    else
+    {
+        return x*power_fn(x, n-1);
+    }
+}
+
 void md5Algo(char *msg, int len)
 {
+    printf("%s  %d\n",msg,strlen(msg));
     unsigned int F,g,K[64];
     unsigned int hash[4] = {0,0,0,0};
     unsigned int buffer[4];
-    int s[64];
+    unsigned int s[64];
     step4(s);
-    for (int i = 0; i < 64; i++)
+    for (long long int i = 0; i < 64; i++)
     {
         K[i] = (unsigned int)floor(abs(sin(i+1))*pow(2,32));
     }
-    for(int j=0;j<len;j+=512)
+    for(long long int j=0;j<len;j+=512)
     {
         step3(buffer);
         char temp[512];
@@ -162,10 +181,23 @@ void md5Algo(char *msg, int len)
         {
             temp[i]=msg[i+j];
         }
-        int M[16];
-        for(int i=0;i<16;i++)
+        int M[16]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        char temp2[32];
+        int count = 0;
+        while(count < 16)
         {
-            M[i] = (int)temp[32*i];
+            for(int i=0;i<32;i++)
+            {
+                temp2[i] = temp[i+count*32];
+            }
+            int power = 31;
+            for(int i=0;i<32;i++)
+            {
+                int power1 = (int)(temp2[i])-48;
+                M[count] = M[count] + power_fn(2,power*power1);
+                power--;
+            }
+            count++;
         }
         for(int i=0;i<64;i++)
         {
@@ -189,7 +221,7 @@ void md5Algo(char *msg, int len)
                 F = buffer[2]^(buffer[1]|(~buffer[3]));
                 g = (7*i)%16;
             }
-            unsigned int dTemp = buffer[3];
+            long long int dTemp = buffer[3];
             buffer[3] = buffer[2];
             buffer[2] = buffer[1];
             buffer[1] = buffer[1] + leftrotate((buffer[0] + F + K[i] + M[g]), s[i]);
@@ -215,12 +247,12 @@ void md5Algo(char *msg, int len)
         hash_value[i+24]=hash4[i];
     }
     hash_value[32]='\0';
-    printf("Hash Value : ");
-    for(int i=0;i<32;i++)
-    {
-        printf("%c",hash_value[i]);
-    }
-    printf("\n");
+    printf("Hash Value : %s\n",hash_value);
+    // for(int i=0;i<32;i++)
+    // {
+    //     printf("%c",hash_value[i]);
+    // }
+    // printf("\n");
 }
 int main(int argc, char *argv[])
 {
