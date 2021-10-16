@@ -29,12 +29,6 @@ void step1_2(char *msg_str, char *msg, int len)
     }
     //Append Length
     char a[64];
-    // unsigned int i = 0;
-    // for(int k=0;k<strlen(msg);k++)
-    // {
-    //     i++;
-    // }
-    // itoa(strlen,a,2);
     int i;
     for(i=0;len>0;i++)
     {
@@ -274,14 +268,18 @@ void storeHash()
     hash = malloc(33);
     step1_2(message_str,message,m);
     md5Algo(message,strlen(message),hash);
-    HASH_DATA h;
-    h.file_path=malloc(strlen(file_path)+1);
-    h.hash_value=malloc(33);
-    strcpy(h.file_path,file_path);
-    strcpy(h.hash_value,hash);
+    // HASH_DATA h;
+    // h.file_path=malloc(strlen(file_path)+1);
+    // h.hash_value=malloc(33);
+    // strcpy(h.file_path,file_path);
+    // strcpy(h.hash_value,hash);
     FILE *fp1;
     fp1 = fopen("Hash Values Database.txt","a");
-    fwrite(&h,sizeof(HASH_DATA),1,fp1);
+    fputs(file_path,fp1);
+    fputs("\n",fp1);
+    fputs(hash,fp1);
+    fputs("\n",fp1);
+    // fwrite(&h,sizeof(HASH_DATA),1,fp1);
     fclose(fp1);
     printf("\nHash Value of the file is stored.\n");
 }
@@ -322,34 +320,41 @@ void validateFile()
         printf("\nDatabase is empty.\n");
         return;
     }
-    // fseek(fp1,0,SEEK_END);
-    // int n = ftell(fp1)/sizeof(HASH_DATA);
-    // rewind(fp1);
-    HASH_DATA h;
+    // HASH_DATA h;
+    // h.file_path=malloc(200);
+    // h.hash_value=malloc(33);
+    char end;
     printf("\nThe various paths of files stored in the database are as follows\n");
-    while(fread(&h,sizeof(HASH_DATA),1,fp1))
+    char hash_value[33];
+    while(fgets(file_path,200,fp1)!=NULL)
     {
-        printf("%s\n",h.file_path);
+        file_path[strlen(file_path)-1]='\0';
+        printf("%s\n",file_path);
+        fgets(hash_value,33,fp1);
+        end = fgetc(fp1);
     }
     char file_path1[200];
     printf("\nEnter the path of the file that was stored in the database : ");
     scanf("%[^\n]s",file_path1);
     fflush(stdin);
     rewind(fp1);
-    while(fread(&h,sizeof(HASH_DATA),1,fp1))
+    while(fgets(file_path,200,fp1)!=NULL)
     {
-        if(strcmp(h.file_path,file_path1)==0)
+        file_path[strlen(file_path)-1]='\0';
+        fgets(hash_value,33,fp1);
+        end = fgetc(fp1);
+        if(strcmp(file_path,file_path1)==0)
         {
-            if(strcmp(hash,h.hash_value)==0)
+            if(strcmp(hash,hash_value)==0)
             {
-                printf("\nFile validated successfully. File is not tampered with in the cloud!\n");
+                printf("\nFile validated successfully. File is not tampered with on the cloud!\n");
                 fclose(fp1);
                 return;
             }
             else
             {
                 fclose(fp1);
-                printf("\nAlert! File is tampered with in the cloud.\n");
+                printf("\nAlert! File is tampered with on the cloud.\n");
                 return;
             }
         }
