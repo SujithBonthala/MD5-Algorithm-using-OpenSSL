@@ -1,8 +1,8 @@
-typedef struct Hash_Data
-{
-    char *file_path;
-    char *hash_value;
-}HASH_DATA;
+// typedef struct Hash_Data
+// {
+//     char *file_path;
+//     char *hash_value;
+// }HASH_DATA;
 void step1_2(char *msg_str, char *msg, int len);
 void step3(unsigned int *buffer);
 void step4(unsigned int *s);
